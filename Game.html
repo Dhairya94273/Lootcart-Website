@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Memory Game 6x6</title>
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+
+  body {
+    font-family: 'Inter', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background: linear-gradient(135deg, #141E30, #243B55);
+  }
+
+  .game {
+    display: grid;
+    grid-template-columns: repeat(6, 90px);
+    grid-gap: 12px;
+    perspective: 1200px;
+  }
+
+  .card {
+    width: 90px;
+    height: 90px;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.6s;
+    cursor: pointer;
+  }
+
+  .card.flip {
+    transform: rotateY(180deg);
+  }
+
+  .front, .back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 16px;
+    backface-visibility: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 28px;
+    font-weight: bold;
+  }
+
+  .front {
+    background: #1f4068;
+    color: white;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  }
+
+  .back {
+    background: #e43f5a;
+    transform: rotateY(180deg);
+    color: #fff;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.4);
+  }
+
+</style>
+</head>
+<body>
+
+<div class="game"></div>
+
+<script>
+const symbols = [
+  "🍎","🍌","🍇","🍒","🥝","🍍",
+  "🥑","🍓","🍉","🥥","🍑","🍋",
+  "🍊","🍐","🥕","🍅","🌽","🍆"
+];
+
+let deck = [...symbols, ...symbols]; // 18 pairs = 36 cards (6x6)
+deck.sort(() => 0.5 - Math.random());
+
+const game = document.querySelector('.game');
+
+deck.forEach(symbol => {
+  const card = document.createElement('div');
+  card.classList.add('card');
+  card.innerHTML = `
+    <div class="front">?</div>
+    <div class="back">${symbol}</div>
+  `;
+  game.appendChild(card);
+});
+
+let first, second;
+let lock = false;
+
+game.addEventListener('click', e => {
+  const card = e.target.closest('.card');
+  if (!card || lock || card.classList.contains('flip')) return;
+
+  card.classList.add('flip');
+  if (!first) {
+    first = card;
+  } else {
+    second = card;
+    lock = true;
+    setTimeout(() => {
+      if (first.querySelector('.back').textContent === second.querySelector('.back').textContent) {
+        first = second = null;
+      } else {
+        first.classList.remove('flip');
+        second.classList.remove('flip');
+        first = second = null;
+      }
+      lock = false;
+    }, 1000);
+  }
+});
+</script>
+
+</body>
+</html>
